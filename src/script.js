@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+import model_url from './public/3D_model/croissant.glb';    // how parcel works
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
@@ -21,7 +23,7 @@ let cameraDistance = 0; // Store camera distance globally
 let rotationAngle = 0; // Initialize rotation angle
 
 loader.load(
-    './public/3D_model/croissant.glb',
+    model_url,
     function (gltf) {
         const model = gltf.scene; // Get the loaded model (gltf.scene is the root object)
         scene.add(model); // Add the entire glTF scene to your Three.js scene
