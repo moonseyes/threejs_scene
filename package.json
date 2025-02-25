@@ -5,7 +5,7 @@
   "default": "src/index.html",
   "scripts": {
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html  --no-minify --public-url ./",
+    "build": "rimraf dist && parcel build src/index.html  --no-minify --public-url ./",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
