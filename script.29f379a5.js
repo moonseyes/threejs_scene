@@ -45536,7 +45536,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Lights (keeping ambient and directional for general scene lighting)
-var ambientLight = new THREE.AmbientLight(0x222222); // soft white light
+var ambientLight = new THREE.AmbientLight(0x444444); // soft white light
 scene.add(ambientLight);
 
 // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -45547,6 +45547,15 @@ var loader = new _GLTFLoader.GLTFLoader();
 var modelCenter = new THREE.Vector3(); // Store model center globally
 var cameraDistance = 0; // Store camera distance globally
 var rotationAngle = 0; // Initialize rotation angle
+
+var isDragging = false;
+var previousMouseX = 0;
+var previousMouseY = 0;
+var sensitivity = 0.005; // Adjust sensitivity as needed
+
+// Spherical coordinates for camera control
+var phi = Math.PI / 2; // Initial vertical angle (looking from the side)
+var theta = 0; // Initial horizontal angle (looking from behind)
 
 loader.load(_croissant.default, function (gltf) {
   var model = gltf.scene; // Get the loaded model (gltf.scene is the root object)
@@ -45584,19 +45593,56 @@ loader.load(_croissant.default, function (gltf) {
 });
 function animate() {
   requestAnimationFrame(animate);
-  if (modelCenter && cameraDistance) {
-    // Ensure model is loaded and center/distance are available
-    rotationAngle += 0.01; // Adjust rotation speed here (smaller value = slower rotation)
 
-    // Calculate new camera position in a circle around the model's center (Y-axis rotation)
-    camera.position.x = modelCenter.x + cameraDistance * Math.sin(rotationAngle);
-    camera.position.z = modelCenter.z + cameraDistance * Math.cos(rotationAngle);
-    camera.position.y = modelCenter.y + 1; // Keep the camera at the same height as the model center
+  // if (modelCenter && cameraDistance) { // Ensure model is loaded and center/distance are available
+  //     rotationAngle += 0.01; // Adjust rotation speed here (smaller value = slower rotation)
 
-    camera.lookAt(modelCenter); // Keep looking at the model's center
-  }
+  //     // Calculate new camera position in a circle around the model's center (Y-axis rotation)
+  //     camera.position.x = modelCenter.x + cameraDistance * Math.sin(rotationAngle);
+  //     camera.position.z = modelCenter.z + cameraDistance * Math.cos(rotationAngle);
+  //     camera.position.y = modelCenter.y + 1; // Keep the camera at the same height as the model center
+
+  //     camera.lookAt(modelCenter); // Keep looking at the model's center
+  // }
+
   renderer.render(scene, camera);
 }
 animate();
+function onMouseDown(event) {
+  isDragging = true;
+  previousMouseX = event.clientX;
+  previousMouseY = event.clientY;
+}
+function onMouseMove(event) {
+  if (isDragging) {
+    var deltaX = event.clientX - previousMouseX;
+    var deltaY = event.clientY - previousMouseY;
+
+    // Update spherical coordinates based on mouse movement
+    theta -= deltaX * sensitivity; // left right
+    phi -= deltaY * sensitivity; //up down
+
+    // Clamp vertical angle (phi) to prevent going too far up or down
+    phi = Math.max(0.01, Math.min(Math.PI - 0.01, phi)); // Avoid straight up or down
+
+    // Convert spherical coordinates back to Cartesian coordinates
+    camera.position.setFromSphericalCoords(cameraDistance, phi, theta);
+    camera.position.add(modelCenter); // Translate to model center
+
+    camera.lookAt(modelCenter);
+    previousMouseX = event.clientX;
+    previousMouseY = event.clientY;
+  }
+}
+function onMouseUp() {
+  isDragging = false;
+}
+function onMouseLeave() {
+  isDragging = false;
+}
+renderer.domElement.addEventListener('mousedown', onMouseDown);
+renderer.domElement.addEventListener('mousemove', onMouseMove);
+renderer.domElement.addEventListener('mouseup', onMouseUp);
+// renderer.domElement.addEventListener('mouseleave', onMouseLeave);
 },{"three":"dKqR","three/examples/jsm/loaders/GLTFLoader.js":"O6i0","./public/3D_model/croissant.glb":"dZYe"}]},{},["mpVp"], null)
-//# sourceMappingURL=script.17b28abd.js.map
+//# sourceMappingURL=script.29f379a5.js.map
