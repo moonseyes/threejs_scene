@@ -45517,7 +45517,7 @@ function addPrimitiveAttributes(geometry, primitiveDef, parser) {
   });
 }
 },{"three":"dKqR","../utils/BufferGeometryUtils.js":"Jcll"}],"dZYe":[function(require,module,exports) {
-module.exports = "croissant.21880738.glb";
+module.exports = "croissant.07f2fe3c.glb";
 },{}],"mpVp":[function(require,module,exports) {
 "use strict";
 
@@ -45536,11 +45536,13 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Lights (keeping ambient and directional for general scene lighting)
-var ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+var ambientLight = new THREE.AmbientLight(0x222222); // soft white light
 scene.add(ambientLight);
-var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(1, 1, 1);
-scene.add(directionalLight);
+
+// const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+// directionalLight.position.set(1, 1, 1);
+// scene.add(directionalLight);
+
 var loader = new _GLTFLoader.GLTFLoader();
 var modelCenter = new THREE.Vector3(); // Store model center globally
 var cameraDistance = 0; // Store camera distance globally
@@ -45597,4 +45599,4 @@ function animate() {
 }
 animate();
 },{"three":"dKqR","three/examples/jsm/loaders/GLTFLoader.js":"O6i0","./public/3D_model/croissant.glb":"dZYe"}]},{},["mpVp"], null)
-//# sourceMappingURL=script.b678c8d1.js.map
+//# sourceMappingURL=script.17b28abd.js.map
