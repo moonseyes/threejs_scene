@@ -45517,7 +45517,7 @@ function addPrimitiveAttributes(geometry, primitiveDef, parser) {
   });
 }
 },{"three":"dKqR","../utils/BufferGeometryUtils.js":"Jcll"}],"dZYe":[function(require,module,exports) {
-module.exports = "/croissant.21880738.glb";
+module.exports = "croissant.21880738.glb";
 },{}],"mpVp":[function(require,module,exports) {
 "use strict";
 
@@ -45597,4 +45597,4 @@ function animate() {
 }
 animate();
 },{"three":"dKqR","three/examples/jsm/loaders/GLTFLoader.js":"O6i0","./public/3D_model/croissant.glb":"dZYe"}]},{},["mpVp"], null)
-//# sourceMappingURL=/script.b678c8d1.js.map
+//# sourceMappingURL=script.b678c8d1.js.map
