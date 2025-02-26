@@ -45517,7 +45517,7 @@ function addPrimitiveAttributes(geometry, primitiveDef, parser) {
   });
 }
 },{"three":"dKqR","../utils/BufferGeometryUtils.js":"Jcll"}],"dZYe":[function(require,module,exports) {
-module.exports = "croissant.07f2fe3c.glb";
+module.exports = "croissant.5202e001.glb";
 },{}],"mpVp":[function(require,module,exports) {
 "use strict";
 
@@ -45557,6 +45557,11 @@ var sensitivity = 0.005; // Adjust sensitivity as needed
 var phi = Math.PI / 2; // Initial vertical angle (looking from the side)
 var theta = 0; // Initial horizontal angle (looking from behind)
 
+// Zoom variables
+var minZoomDistance = 1; // Minimum zoom distance
+var maxZoomDistance = 10; // Maximum zoom distance
+var zoomSensitivity = 0.2; // Adjust zoom speed
+
 loader.load(_croissant.default, function (gltf) {
   var model = gltf.scene; // Get the loaded model (gltf.scene is the root object)
   scene.add(model); // Add the entire glTF scene to your Three.js scene
@@ -45581,8 +45586,9 @@ loader.load(_croissant.default, function (gltf) {
   // Calculate initial camera distance based on model size
   cameraDistance = Math.max(size.x, size.y, size.z) * 1.5; // Store distance globally
 
-  // Initial camera position (no rotation yet, positioned behind model along Z)
-  camera.position.set(modelCenter.x, modelCenter.y + 1, modelCenter.z + cameraDistance);
+  // Initial camera position using spherical coordinates
+  camera.position.setFromSphericalCoords(cameraDistance, phi, theta);
+  camera.position.add(modelCenter); // Translate to model center
   camera.lookAt(modelCenter); // Look at the center
 
   renderer.render(scene, camera); // Initial render
@@ -45640,9 +45646,30 @@ function onMouseUp() {
 function onMouseLeave() {
   isDragging = false;
 }
+function onMouseWheel(event) {
+  event.preventDefault(); // Prevent default scrolling behavior
+
+  // Adjust camera distance based on scroll direction
+  if (event.deltaY < 0) {
+    // Scroll up (zoom in)
+    cameraDistance -= zoomSensitivity;
+  } else {
+    // Scroll down (zoom out)
+    cameraDistance += zoomSensitivity;
+  }
+
+  // Clamp the camera distance to prevent zooming too far in or out
+  cameraDistance = Math.max(minZoomDistance, Math.min(maxZoomDistance, cameraDistance));
+
+  // Update camera position based on new distance
+  camera.position.setFromSphericalCoords(cameraDistance, phi, theta);
+  camera.position.add(modelCenter);
+  camera.lookAt(modelCenter);
+}
 renderer.domElement.addEventListener('mousedown', onMouseDown);
 renderer.domElement.addEventListener('mousemove', onMouseMove);
 renderer.domElement.addEventListener('mouseup', onMouseUp);
 // renderer.domElement.addEventListener('mouseleave', onMouseLeave);
+renderer.domElement.addEventListener('wheel', onMouseWheel);
 },{"three":"dKqR","three/examples/jsm/loaders/GLTFLoader.js":"O6i0","./public/3D_model/croissant.glb":"dZYe"}]},{},["mpVp"], null)
-//# sourceMappingURL=script.29f379a5.js.map
+//# sourceMappingURL=script.1cf546aa.js.map
