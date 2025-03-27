@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import model_url from './public/3D_model/croissant.glb';    // how parcel works
+import model_url from './public/3D_model/ny_room.glb';    // how parcel works
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -31,6 +31,15 @@ const sensitivity = 0.005; // Adjust sensitivity as needed
 let phi = Math.PI / 2; // Initial vertical angle (looking from the side)
 let theta = 0;        // Initial horizontal angle (looking from behind)
 
+// Zoom variables
+const minZoomDistance = 0.5; // Minimum zoom distance
+const maxZoomDistance = 10; // Maximum zoom distance
+const zoomSensitivity = 0.1; // Adjust zoom speed
+
+// Animation variables
+let mixer; // Animation mixer
+let clock = new THREE.Clock(); // Clock for animation
+
 loader.load(
     model_url,
     function (gltf) {
@@ -52,10 +61,11 @@ loader.load(
         // Calculate bounding box of the model to get its size and center
         const boundingBox = new THREE.Box3().setFromObject(model);
         modelCenter = boundingBox.getCenter(new THREE.Vector3()); // Store the center globally
+        modelCenter.y += 0.35;
         const size = boundingBox.getSize(new THREE.Vector3());
 
         // Calculate initial camera distance based on model size
-        cameraDistance = Math.max(size.x, size.y, size.z) * 1.5; // Store distance globally
+        cameraDistance = Math.max(size.x, size.y, size.z) * 1.0; // Store distance globally
 
         // Initial camera position using spherical coordinates
         camera.position.setFromSphericalCoords(cameraDistance, phi, theta);
@@ -63,6 +73,18 @@ loader.load(
         camera.lookAt(modelCenter); // Look at the center
 
         renderer.render(scene, camera); // Initial render
+
+        // Animation setup
+        if (gltf.animations && gltf.animations.length) {
+            mixer = new THREE.AnimationMixer(model);
+            gltf.animations.forEach((clip) => {
+                const action = mixer.clipAction(clip);
+                action.loop = THREE.LoopRepeat; // Set loop mode
+                action.play();
+            });
+        } else {
+            console.warn("No animations found in the GLTF model.");
+        }
     },
     function (xhr) {
         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -76,16 +98,10 @@ loader.load(
 function animate() {
     requestAnimationFrame(animate);
 
-    // if (modelCenter && cameraDistance) { // Ensure model is loaded and center/distance are available
-    //     rotationAngle += 0.01; // Adjust rotation speed here (smaller value = slower rotation)
-
-    //     // Calculate new camera position in a circle around the model's center (Y-axis rotation)
-    //     camera.position.x = modelCenter.x + cameraDistance * Math.sin(rotationAngle);
-    //     camera.position.z = modelCenter.z + cameraDistance * Math.cos(rotationAngle);
-    //     camera.position.y = modelCenter.y + 1; // Keep the camera at the same height as the model center
-
-    //     camera.lookAt(modelCenter); // Keep looking at the model's center
-    // }
+    // Update animation mixer
+    if (mixer) {
+        mixer.update(clock.getDelta());
+    }
 
     renderer.render(scene, camera);
 }
@@ -129,7 +145,29 @@ function onMouseLeave() {
     isDragging = false;
 }
 
+function onMouseWheel(event) {
+    event.preventDefault(); // Prevent default scrolling behavior
+
+    // Adjust camera distance based on scroll direction
+    if (event.deltaY < 0) {
+        // Scroll up (zoom in)
+        cameraDistance -= zoomSensitivity;
+    } else {
+        // Scroll down (zoom out)
+        cameraDistance += zoomSensitivity;
+    }
+
+    // Clamp the camera distance to prevent zooming too far in or out
+    cameraDistance = Math.max(minZoomDistance, Math.min(maxZoomDistance, cameraDistance));
+
+    // Update camera position based on new distance
+    camera.position.setFromSphericalCoords(cameraDistance, phi, theta);
+    camera.position.add(modelCenter);
+    camera.lookAt(modelCenter);
+}
+
 renderer.domElement.addEventListener('mousedown', onMouseDown);
 renderer.domElement.addEventListener('mousemove', onMouseMove);
 renderer.domElement.addEventListener('mouseup', onMouseUp);
 // renderer.domElement.addEventListener('mouseleave', onMouseLeave);
+renderer.domElement.addEventListener('wheel', onMouseWheel);
